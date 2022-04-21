@@ -1,7 +1,7 @@
 #!/bin/bash
 #mxrr MX-comfort-rofi-recolor
 #Tool to edit colors in Rofi Themes
-#V0.0.01 by Melber April 2022
+#V0.01 by Melber April 2022
 #License: GPL-3.0+
 
 
@@ -11,7 +11,7 @@
 TITLE="MX-rofi-recolor"
 CLASS="mxrr"
 ROFIPATH="$HOME/.config/rofi/themes"
-#ICONPATH="/usr/share/pixmaps/mxcr-icon.png"
+ICONPATH="/usr/share/pixmaps/mxcr-icon.png"
 #HELPPATH="/usr/share/pixmaps/mxcr-help.png"
 
 
@@ -124,20 +124,22 @@ color_picker() {
 # function to be called with help button
 
 mxrrhelp() {
-yad --title="MX-Rofi-recolor help" --window-icon=/usr/share/pixmaps/mxcr-icon.png --borders=20 --center --width=600 --height=400 --button="Return to Main Window":1 \
---text="<b>A quick description of the selection fields.\nDiagramme to be added later</b>\n\n
-Window Border - Color of thin line around outermost edge\n
-Window Highlight - Color of line across top of window\n
-Input Background - Color in search area\n
-Prompt Background - Color behind Annotation\n
-Prompt Anotation - Color of Search Apps text\n
-Search Bar Background - Color of search bar\n
-Search Bar Text - Color of search bar text\n
-List Background - Color around list area\n
-Element Background - Color of list items background\n
-Element Text - Color of list items text\n
-Selection Background - Color of selected list item\n
-Selection Text - Color of selected list item text\n
+yad --title="MX-Rofi-recolor help"  --class=mxrrhelp --window-icon=/usr/share/pixmaps/mxcr-icon.png --borders=20 --fixed --width=600 --height=400 --button="Return to Main Window":1 \
+--text="<b>A quick description of the selection fields
+Diagramme to be added later</b>
+
+Window Border - Color of thin line around outermost edge
+Window Highlight - Color of line across top of window
+Input Background - Color in search area
+Prompt Background - Color behind Annotation
+Prompt Annotation - Color of Search Apps text
+Search Bar Background - Color of search bar
+Search Bar Text - Color of search bar text
+List Background - Color around list area
+Element Background - Color of list items background
+Element Text - Color of list items text
+Selection Background - Color of selected list item
+Selection Text - Color of selected list item text
 "
 
 }
@@ -147,9 +149,9 @@ export -f color_picker mxrrhelp
 #MAIN
 #color selection dialogue
 
-MAIN=(yad --title="$TITLE" --class="$CLASS" --window-icon="$ICONPATH" --borders=20 --center --width=600 --height=400 --fixed --form --columns=5 --align=right --separator=" " --button="gtk-help":"bash -c mxcrhelp" --button="gtk-quit":1 --button="gtk-ok":0 \
+MAIN=(yad --title="$TITLE" --class="$CLASS" --window-icon="$ICONPATH" --borders=20 --center --width=600 --height=400 --fixed --form --columns=5 --align=right --separator=" " --button="gtk-help":"bash -c mxrrhelp" --button="gtk-quit":1 --button="gtk-ok":0 \
 --text="<b>\nEdit colors and create a new rofi theme.\n\n</b>" \
---field="<b>Window</b>":LBL " " \
+--field="<b>Window Items           </b>":LBL " " \
 --field="Window Border":CLR "$WIBR" \
 --field="Window Highlight":CLR "$MBBR" \
 --field="Input Background":CLR "$IPBG" \
@@ -167,7 +169,7 @@ MAIN=(yad --title="$TITLE" --class="$CLASS" --window-icon="$ICONPATH" --borders=
 --field='!color-select':BTN '@bash -c "color_picker 7 %6;"'
 --field='!color-select':BTN '@bash -c "color_picker 8 %6;"'
 --field=" ":LBL " " \
---field="<b>List</b>":LBL " " \
+--field="<b>List Items           </b>":LBL " " \
 --field="List Background":CLR "$LIBG" \
 --field="Element Background":CLR "$ELBG" \
 --field="Element Text":CLR "$ELTX" \
@@ -187,7 +189,7 @@ MAIN=(yad --title="$TITLE" --class="$CLASS" --window-icon="$ICONPATH" --borders=
 --field=" ":LBL " " \
 --field="<b>  Name for new theme        </b>":LBL " " \
 --field=" " ""$NEWNAME"" \
---field="<b>  Make new style current?</b>":LBL " " \
+--field="<b>  Make new theme current?</b>":LBL " " \
 --field=" ":CB "yes!no" \
 --field=" ":LBL " " \
 --field=" ":LBL " " \
@@ -198,7 +200,7 @@ COLOURS=$("${MAIN[@]}")
 
 GETOUT=$(echo "$?")
 
-if [ "$GETOUT" = 1 ]; then
+if [ "$GETOUT" != 0 ]; then
 
   exit
 
