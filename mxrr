@@ -44,11 +44,11 @@ if [ ! -f $ROFIPATH/MX-comfort-rr ]; then
 fi
 
 
-#if [ ! -f ~/.config/rofi/themes/MX-comfort-dark-rr ]; then
+if [ ! -f ~/.config/rofi/themes/MX-comfort-dark-rr ]; then
 
-#  printf "#0f56d9 #1d2324 #ffffff #ffffff #0f56d9 #CACDD0 #1d2324 #CACDD0 #c6c8c8 #1D2324 #1D2324 #ffffff #DEDFE3 #ffffff MX-comfort-dark yes no" > ~/.fluxbox/styles/MX-comfort-dark/mxcr.txt
+  printf "#1D2324 #0f56d9 #1D2324 #1D2324 #CACDD0 #29353B #ffffff #29353B #29353B #ffffff #0f56d9 #ffffff MX-comfort-dark yes" > $ROFIPATH/MX-comfort-dark-rr
 
-#fi
+fi
 
 
 #read available styles
@@ -334,7 +334,6 @@ printf "configuration {
 
 @import \""$ROFIPATH"/"$NEWNAME".rasi"\" > $HOME/.config/rofi/config.rasi
 
-#sed -i "s/\@import*/\@import \""$ROFIPATH"/"$NEWNAME".rasi"\"/g" $HOME/.config/rofi/config.rasi
 
   yad --title="$TITLE" --class="$CLASS" --window-icon="$ICONPATH" --width=400 --height=200 --fixed --center --borders=20 --text="All done!\n<b>"$NEWNAME"</b> has been set as the current rofi theme." --text-align=center --button="OK" \
 
