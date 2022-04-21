@@ -44,7 +44,7 @@ if [ ! -f $ROFIPATH/MX-comfort-rr ]; then
 fi
 
 
-#if [ ! -f ~/.config/rofi/themes/MX-comfort-dark-rr.txt ]; then
+#if [ ! -f ~/.config/rofi/themes/MX-comfort-dark-rr ]; then
 
 #  printf "#0f56d9 #1d2324 #ffffff #ffffff #0f56d9 #CACDD0 #1d2324 #CACDD0 #c6c8c8 #1D2324 #1D2324 #ffffff #DEDFE3 #ffffff MX-comfort-dark yes no" > ~/.fluxbox/styles/MX-comfort-dark/mxcr.txt
 
@@ -124,7 +124,21 @@ color_picker() {
 # function to be called with help button
 
 mxrrhelp() {
-yad --title="MX-Rofi-recolor help" --window-icon=/usr/share/pixmaps/mxcr-icon.png --borders=20 --center --width=700 --height=400 --image /usr/share/pixmaps/mxcr-help.png --size=fit --button="Return to Main Window":1 \
+yad --title="MX-Rofi-recolor help" --window-icon=/usr/share/pixmaps/mxcr-icon.png --borders=20 --center --width=600 --height=400 --button="Return to Main Window":1 \
+--text="<b>A quick description of the selection fields.\nDiagramme to be added later</b>\n\n
+Window Border - Color of thin line around outermost edge\n
+Window Highlight - Color of line across top of window\n
+Input Background - Color in search area\n
+Prompt Background - Color behind Annotation\n
+Prompt Anotation - Color of Search Apps text\n
+Search Bar Background - Color of search bar\n
+Search Bar Text - Color of search bar text\n
+List Background - Color around list area\n
+Element Background - Color of list items background\n
+Element Text - Color of list items text\n
+Selection Background - Color of selected list item\n
+Selection Text - Color of selected list item text\n
+"
 
 }
 
@@ -133,7 +147,7 @@ export -f color_picker mxrrhelp
 #MAIN
 #color selection dialogue
 
-MAIN=(yad --title="$TITLE" --class="$CLASS" --window-icon="$ICONPATH" --borders=20 --center --width=900 --height=400 --fixed --form --columns=5 --align=right --separator=" " --button="gtk-help":"bash -c mxcrhelp" --button="gtk-quit":1 --button="gtk-ok":0 \
+MAIN=(yad --title="$TITLE" --class="$CLASS" --window-icon="$ICONPATH" --borders=20 --center --width=600 --height=400 --fixed --form --columns=5 --align=right --separator=" " --button="gtk-help":"bash -c mxcrhelp" --button="gtk-quit":1 --button="gtk-ok":0 \
 --text="<b>\nEdit colors and create a new rofi theme.\n\n</b>" \
 --field="<b>Window</b>":LBL " " \
 --field="Window Border":CLR "$WIBR" \
@@ -317,6 +331,8 @@ printf "configuration {
 }
 
 @import \""$ROFIPATH"/"$NEWNAME".rasi"\" > $HOME/.config/rofi/config.rasi
+
+#sed -i "s/\@import*/\@import \""$ROFIPATH"/"$NEWNAME".rasi"\"/g" $HOME/.config/rofi/config.rasi
 
   yad --title="$TITLE" --class="$CLASS" --window-icon="$ICONPATH" --width=400 --height=200 --fixed --center --borders=20 --text="All done!\n<b>"$NEWNAME"</b> has been set as the current rofi theme." --text-align=center --button="OK" \
 
