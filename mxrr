@@ -12,7 +12,7 @@ TITLE="MX-rofi-recolor"
 CLASS="mxrr"
 ROFIPATH="$HOME/.config/rofi/themes"
 ICONPATH="/usr/share/pixmaps/mxcr-icon.png"
-#HELPPATH="/usr/share/pixmaps/mxcr-help.png"
+#HELPPATH="/usr/share/pixmaps/mxrr-help.png"
 
 
 #delete stylelist and tempclr after use
@@ -335,9 +335,15 @@ printf "configuration {
 @import \""$ROFIPATH"/"$NEWNAME".rasi"\" > $HOME/.config/rofi/config.rasi
 
 
-  yad --title="$TITLE" --class="$CLASS" --window-icon="$ICONPATH" --width=400 --height=200 --fixed --center --borders=20 --text="All done!\n<b>"$NEWNAME"</b> has been set as the current rofi theme." --text-align=center --button="OK" \
+  yad --title="$TITLE" --class="$CLASS" --window-icon="$ICONPATH" --width=400 --height=200 --fixed --center --borders=20 --text="All done!\n<b>"$NEWNAME"</b> has been set as the current rofi theme.\n\nYou can change themes in the terminal with the command <b>rofi-theme-selector</b>" --text-align=center --button="OK" \
 
 fi
 
+
+if [ "$MAKECUR" = no ]; then
+
+  yad --title="$TITLE" --class="$CLASS" --window-icon="$ICONPATH" --width=400 --height=250 --fixed --center --borders=20 --text="All done!\n<b>"$NEWNAME"</b> theme has been created.\n\nYou can change themes in the terminal with the command <b>rofi-theme-selector</b>" --text-align=center --button="OK" \
+
+fi
 
 exit
