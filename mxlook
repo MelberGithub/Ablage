@@ -1,0 +1,152 @@
+#!/bin/bash
+#mxlook is an app to save and restore the look of MX-Linux Fluxbox
+#V0.01 by Melber April 2022
+
+#License: GPL-3.0+
+#mxcr-icon based on yad icon from papirus icon set
+
+#paths
+#theme and icons ~/.config/gtk-3.0/settings.ini
+
+
+#define some variables
+
+TITLE="MX-look"
+CLASS="mxlook"
+MXLKPATH="$HOME/.config/mxlook"
+ICONPATH="/usr/share/pixmaps/mxcr-icon.png"
+#HELPPATH="/usr/share/pixmaps/mxrr-help.png"
+
+
+#delete stylelist and tempclr after use
+#trap "rm -r "$MXLKPATH/tempdir" " EXIT
+
+#
+if [ ! -d $MXLKPATH ]; then
+
+mkdir $MXLKPATH
+
+fi
+
+#create tempdir
+
+if [ ! -d $MXLKPATH/tempdir ]; then
+
+  mkdir -p $MXLKPATH/tempdir
+
+fi
+
+
+#read saved looks
+
+#cd $MXLKPATH
+#ls -f *.look > $MXLKPATH/tempdir/looklist.txt
+#sed -i 's|.look||g' $MXLKPATH/tempdir/looklist.txt
+
+
+#read current look components
+
+#theme and icons
+	#$HOME/.config/gtk-3.0/settings.ini
+
+	#gtk-theme-name=*
+	#gtk-icon-theme-name=*
+	
+LKTHEME="$(grep "gtk-theme-name" $HOME/.config/gtk-3.0/settings.ini)"
+#LKTH="$(echo "$LKTHEME" | (IFS="=" read -r var1 var2; echo -e "$var2"))"
+
+
+LKICON="$(grep "gtk-icon-theme-name" $HOME/.config/gtk-3.0/settings.ini)"
+#LKIC="$(echo "$LKICON" | (IFS="=" read -r var1 var2; echo -e "$var2"))"
+
+#fluxbox style
+
+
+LKFLUXSTYLE="$(grep "styles" $HOME/.fluxbox/init)"
+#LKFS="$(echo "$LKFLUXSTYLE" | (IFS="/" read -r var1 var2 var3 var4 var5 var6; echo -e "$var6"))"
+
+#tint2
+
+
+LKTINT="$(grep "tint2" $HOME/.config/tint2/tint2-sessionfile)"
+#LKTI="$(echo "$LKTINT" | (IFS="/" read -r var1 var2 var3 var4 var5; echo -e "$var4"))"
+#LKTI=basename "$LKTINT"
+
+
+#rofi
+
+
+LKROFI="$(grep "themes" $HOME/.config/rofi/config.rasi)"
+#LKRO="$(echo "$LKROFI" | (IFS="/" read -r var1 var2 var3 var4 var5 var6 var7; echo -e "$var7"))"
+#LKRO=basename "$LKROFI"
+
+
+#background
+
+LKBACK="$(grep "file=" $HOME/.config/nitrogen/bg-saved.cfg)"
+#LKBG=basename "$LKBACK"
+
+
+#make temp file
+echo ""$LKTHEME" "$LKICON" "$LKFLUXSTYLE" "$LKTINT" "$LKROFI" "$LKBACK"" > $MXLKPATH/tempdir/looktmp.txt
+
+#amend temp
+cd $MXLKPATH/tempdir
+
+sed -i "s/gtk-theme-name\=/ /g" looktmp.txt
+sed -i "s/gtk-icon-theme-name\=/ /g" looktmp.txt
+sed -i "s/session\.styleFile\:/ /g" looktmp.txt
+sed -i "s/\@import/ /g" looktmp.txt
+sed -i "s/file\=/ /g" looktmp.txt
+#sed -i "s/\.tint2rc/ /g" looktmp.txt
+#sed -i "s/\.rasi\"/ /g" looktmp.txt
+sed -i "s/\"/ /g" looktmp.txt
+#sed -i "s/\.jpg/ /g" looktmp.txt
+
+
+#read temp
+
+read -r -a YADFILL < looktmp.txt
+
+LKTH="${YADFILL[0]}"
+LKIC="${YADFILL[1]}"
+LKFS="${YADFILL[2]}"
+LKTI="${YADFILL[3]}"
+LKRO="${YADFILL[4]}"
+LKBG="${YADFILL[6]}"
+
+
+#MAIN
+#color selection dialogue
+
+MAIN=(yad --title="$TITLE" --class="$CLASS" --window-icon="$ICONPATH" --borders=20 --center --width=600 --height=400 --fixed --form --columns=2 --align=left --separator=" " --button="gtk-quit":1 --button="Save Look":0 \
+--text="<b>\nCurrent settings.\n</b>" \
+--field="Gtk Theme:      <b>""</b>":LBL "" \
+--field="Gtk Icons:      <b>""</b>":LBL "" \
+--field="Fluxbox Style: <b>""</b>":LBL "" \
+--field="tint:   <b>""</b>":LBL "" \
+--field="Rofi:   <b>""</b>":LBL "" \
+--field="Wallpaper: <b>""</b>":LBL "" \
+--field=" ":LBL " " \
+--field="<b>Name for new Look</b>":LBL " " \
+--field="<b>"$LKTH"</b>":LBL "" \
+--field="<b>"$LKIC"</b>":LBL "" \
+--field="<b>"$LKFS"</b>":LBL "" \
+--field="<b>"$LKTI"</b>":LBL "" \
+--field="<b>"$LKRO"</b>":LBL "" \
+--field="<b>"$LKBG"</b>":LBL "" \
+--field=" ":LBL " " \
+--field=" " ""$NEWNAME"" \
+)
+NEWNAME=$("${MAIN[@]}")
+GETOUT=$(echo "$?")
+
+if [ "$GETOUT" != 0 ]; then
+
+  exit
+
+elif [ "$GETOUT" = 0 ]; then
+
+  echo ""$LKTHEME" "$LKICON" "$LKFLUXSTYLE" "$LKTINT" "$LKROFI" "$LKBACK"" > $MXLKPATH/"$NEWNAME".look
+
+fi
