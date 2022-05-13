@@ -206,7 +206,8 @@ sed -i "s/file\=*/$LKBACK/g" bg-saved.cfg
 
 #restart
 
-gtk
+#gtk
+xsettingsd
 
 fluxbox-remote restart
 
