@@ -206,10 +206,21 @@ sed -i "s/file\=*/$LKBACK/g" bg-saved.cfg
 
 #restart
 
-#gtk
-xsettingsd
+#gtk bash
+function reload_gtk_theme() {
+  theme=$(gsettings get org.gnome.desktop.interface gtk-theme)
+  gsettings set org.gnome.desktop.interface gtk-theme ''
+  sleep 1
+  gsettings set org.gnome.desktop.interface gtk-theme $theme
+}
 
-fluxbox-remote restart
+reload_gtk_theme
 
-killall tint2
+
+#fluxbox-remote restart
+
+#killall tint2
+
+nitrogen --restore
+#nitrogen --set-zoom-fill "$LKBACK"
 
