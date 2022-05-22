@@ -40,9 +40,21 @@ fi
 
 if [ ! -f $MXLKPATH/default.look ]; then
 
-echo ""$LKTHEME" "$LKICON" "$LKFLUXSTYLE" "$LKTINT" "$LKROFI" "$LKBACK"" > $MXLKPATH/tempdir/default.look
+echo ""$LKTHEME" "$LKICON" "$LKFLUXSTYLE" "$LKTINT" "$LKROFI" "$LKBACK"" > $MXLKPATH/default.look
 
 fi
+
+
+#################################
+# function save look
+
+save_look() {
+#define some variables
+
+TITLE="MX-look"
+CLASS="mxlook"
+MXLKPATH="$HOME/.config/mxlook"
+ICONPATH="/usr/share/pixmaps/mxcr-icon.png"
 
 #read current look components
 
@@ -119,16 +131,16 @@ LKBG="${YADFILL[5]}"
 #MAIN
 #color selection dialogue
 
-MAIN=(yad --title="$TITLE" --class="$CLASS" --window-icon="$ICONPATH" --borders=20 --center --width=600 --height=400 --fixed --form --columns=1 --align=left --separator=" " --button="gtk-quit":1 --button="Save Look":0 \
+MAIN=(yad --title="$TITLE" --class="$CLASS" --window-icon="$ICONPATH" --borders=20 --center --width=600 --height=400 --fixed --form --columns=1 --align=left --separator="_" --button="gtk-quit":1 --button="Save Look":0 \
 --text="
-<b>\nCurrent Settings.\n</b>
-GTK Theme:	<b>"$LKTH"</b>\n
-Gtk Icons:	<b>"$LKIC"</b>\n
+<b>Current Settings.\n</b>
+GTK Theme:		<b>"$LKTH"</b>\n
+Gtk Icons:		<b>"$LKIC"</b>\n
 Fluxbox Style:	<b>"$LKFS"</b>\n
-Tint2:		<b>"$LKTI"</b>\n
-Rofi:		<b>"$LKRO"</b>\n
-Wallpaper:	<b>"$LKBG"</b>\n
---field="Save Look as" "$NEWNAME"\
+Tint2:			<b>"$LKTI"</b>\n
+Rofi:			<b>"$LKRO"</b>\n
+Wallpaper:		<b>"$LKBG"</b>\n"
+--field="Save Look as" "New-Look-Name"\
 )
 NEWNAME=$("${MAIN[@]}")
 GETOUT=$(echo "$?")
@@ -139,27 +151,36 @@ if [ "$GETOUT" != 0 ]; then
 
 elif [ "$GETOUT" = 0 ]; then
 
-  echo ""$LKTHEME" "$LKICON" "$LKFLUXSTYLE" "$LKTINT" "$LKROFI" "$LKBACK"" > $MXLKPATH/"$NEWNAME".look
+    echo ""$LKTHEME","$LKICON","$LKFLUXSTYLE","$LKTINT","$LKROFI","$LKBACK"" > $MXLKPATH/"$NEWNAME".look
 
-  yad --title="$TITLE" --class="$CLASS" --window-icon="$ICONPATH" --width=400 --height=250 --fixed --center --borders=20 --text="All done!\n<b>"$NEWNAME"</b> Look has been saved." --text-align=center --button="OK" \
+  yad --title="$TITLE" --class="$CLASS" --window-icon="$ICONPATH" --width=400 --height=250 --fixed --center --borders=20 --text="All done!\n\nLook has been saved as <b>$NEWNAME</b>" --text-align=center --button="OK" \
 
 fi
 
 exit
+}
 
 ###################
-#RESTORE#
+#function restore look
+
+restore_look() {
+#define some variables
+
+TITLE="MX-look"
+CLASS="mxlook"
+MXLKPATH="$HOME/.config/mxlook"
+ICONPATH="/usr/share/pixmaps/mxcr-icon.png"
+
 
 #read saved looks
-
 cd $MXLKPATH
-ls -f *.look > $MXLKPATH/tempdir/looklist.txt
-sed -i 's|.look||g' $MXLKPATH/tempdir/looklist.txt
+ls -f *_.look > $MXLKPATH/tempdir/looklist.txt
+#sed -i 's|_.look||g' $MXLKPATH/tempdir/looklist.txt
 
 
 #select look to restore
 
-LOOKRESTORE=$( yad --title="$TITLE" --class="$CLASS" --window-icon="$ICONPATH" --text="\n<b> Choose which look to restore</b>\n" --center --width=400 --height=300 --center --list --no-headers --separator=" " --column=Style < $MXLKPATH/tempdir/looklist.txt )
+LOOKRESTORE=$( yad --title="$TITLE" --class="$CLASS" --window-icon="$ICONPATH" --text="\n<b> Choose which look to restore</b>\n" --center --width=400 --height=300 --center --list --no-headers --column=Style --separator="" < $MXLKPATH/tempdir/looklist.txt )
 
 GETOUT=$(echo "$?")
 
@@ -170,8 +191,11 @@ if [ "$GETOUT" != 0 ]; then
 fi
 
 #read Settings
+#LOOKRESTORE=$LOOKRESTORE_.look
+cd $MXLKPATH
 
-read -r -a LKRE< $LOOKRESTORE.look
+read -r -a LKRE < $LOOKRESTORE
+IFS=","
 
 LKTHEME="${LKRE[0]}"
 LKICON="${LKRE[1]}"
@@ -180,31 +204,36 @@ LKTINT="${LKRE[3]}"
 LKROFI="${LKRE[4]}"
 LKBACK="${LKRE[5]}"
 
+echo ""$LKTHEME" "$LKICON" "$LKFLUXSTYLE" "$LKTINT" "$LKROFI" "$LKBACK""
+
+exit
+
 #Edit Config files
 
 #gtk
-cd ~/.config/gtk-3.0
-sed -i "s/gtk-theme-name\=*/"$LKTHEME"/g" settings.ini
-sed -i "s/gtk-icon-theme-name\=*/"$LKICON"/g" settings.ini
+#cd ~/.config/gtk-3.0
+#sed -i "s/gtk-theme-name\=*/"$LKTHEME"/g" settings.ini
+#sed -i "s/gtk-icon-theme-name\=*/"$LKICON"/g" settings.ini
 
 #fluxbox
-cd ~/.config/fluxbox
-  sed -i -r "/^(session.styleFile:).*/s::\1    ~/.fluxbox/styles/"$NEWNAME":"  ~/.fluxbox/init
+#cd ~/.config/fluxbox
+#  sed -i "s/session.styleFile:*/"$LKFLUXSTYLE"/g"  ~/.fluxbox/init
 
 #tint
-cd ~/.config/tint2
-rm tint2-sessionfile
-echo '$HOME'"/.config/tint2/"$LKTINT"" >> tint2-sessionfile
+#cd ~/.config/tint2
+#rm tint2-sessionfile
+#echo "$LKTINT" >> tint2-sessionfile
 
 #rofi
-cd $HOME/.config/rofi/
-sed -i "s/\@import*/"$LKROFI"/g" config.rasi
+#cd $HOME/.config/rofi/
+#sed -i "s/\@import*/"$LKROFI"/g" config.rasi
 
 #background
-cd $HOME/.config/nitrogen
-sed -i "s/file\=*/$LKBACK/g" bg-saved.cfg
+#cd $HOME/.config/nitrogen
+#sed -i "s/file\=*/$LKBACK/g" bg-saved.cfg
 
 #restart
+
 
 #gtk bash
 function reload_gtk_theme() {
@@ -223,4 +252,12 @@ reload_gtk_theme
 
 nitrogen --restore
 #nitrogen --set-zoom-fill "$LKBACK"
+
+
+}
+
+export -f save_look restore_look
+
+yad --title="$TITLE" --class="$CLASS" --window-icon="$ICONPATH" --width=400 --height=200 --fixed --center --borders=20 \
+--text="<b>You can save the current look or restore a saved look</b>\n\nA look is comprised of the following elements\n- Gtk-Theme\n- Gtk-Icon\n- Fluxbox Style\n- Tint2 Panel\n- Rofi Theme\n- Wallpaper\n\n" --text-align=center --button="gtk-close" --button="Restore Look":"bash -c restore_look" --button="Save Current Look":"bash -c save_look" \
 
