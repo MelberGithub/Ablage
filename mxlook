@@ -214,10 +214,12 @@ exit
 #cd ~/.config/gtk-3.0
 #sed -i "s/gtk-theme-name\=*/"$LKTHEME"/g" settings.ini
 #sed -i "s/gtk-icon-theme-name\=*/"$LKICON"/g" settings.ini
+sed -e "s/^gtk-theme-name=.*/gtk-theme-name="$LKTHEME"/" -i ~/.config/gtk-3.0/settings.ini
 
 #fluxbox
 #cd ~/.config/fluxbox
 #  sed -i "s/session.styleFile:*/"$LKFLUXSTYLE"/g"  ~/.fluxbox/init
+sed -i -r "/^(session.styleFile:).*/s::\1    ~/.fluxbox/styles/$LKFLUXSTYLE:"  ~/.fluxbox/init
 
 #tint
 #cd ~/.config/tint2
