@@ -1,6 +1,6 @@
 #!/bin/bash
 #Look Library is an app to save and restore the look of MX-Linux Fluxbox
-#V0.01 by Melber June 2022 220607
+#V0.01 by Melber June 2022 220608
 
 #License: GPL-3.0+
 #mxcr-icon based on yad icon from papirus icon set
@@ -47,7 +47,7 @@ fi
 
 #make Default look file
 
-if [ ! -f $MXLKPATH/looks/default_.look ]; then
+if [ ! -f $MXLKPATH/looks/MXFB-default_.look ]; then
 
 printf "gtk-theme-name=mx-comfort\ngtk-icon-theme-name=Papirus-mxblue-darkpanes\ngtk-theme-name=\"mx-comfort\"\ngtk-icon-theme-name=\"Papirus-mxblue-darkpanes\"\nsession.styleFile: ~/.fluxbox/styles/MX-comfort\n$HOME/.config/tint2/tint2rc\n@import \"/usr/share/rofi/themes/glue_pro_blue.rasi\"\nfile=/usr/share/backgrounds/Honesty.jpg" > $MXLKPATH/looks/MXFB-default_.look
 
@@ -149,6 +149,8 @@ Wallpaper:		<b>"$LKBG"</b>\n"
 --field="Save Look as" "New-Look-Name"\
 )
 NEWNAME=$("${MAIN[@]}")
+(($?==0)) && echo "$NEWNAME" > $MXLKPATH/tempdir/tempname.txt
+
 GETOUT=$(echo "$?")
 
 if [ "$GETOUT" != 0 ]; then
@@ -157,11 +159,54 @@ if [ "$GETOUT" != 0 ]; then
 
 elif [ "$GETOUT" = 0 ]; then
 
-    #LKTINT=$(echo "${LKTINT}" | sed s/*tint2rc /*tint2rc/ "$LKTINT")    
+read NEWNAME < $MXLKPATH/tempdir/tempname.txt
 
-    #printf ""$LKTHEME"\n"$LKICON"\n"$LKTHEME2"\n"$LKICON2"\nsession.styleFile: "$LKFS"\n"$LKTINT" \@import\""$LKRO"\"\n"$LKBACK"" > $MXLKPATH/looks/"$NEWNAME".look
-    
-    echo ""$LKTHEME"
+fi
+
+
+#check new Look name is not empty and forbid MXFB-default overwrite
+
+while [ -z "$NEWNAME" -o "$NEWNAME" = 'MXFB-default' ]; do
+
+  NEWNAME=$(yad --title="$TITLE" --class="$CLASS" --window-icon="$ICONPATH" --width=400 --height=200 --fixed --text="Look name "$NEWNAME" is protected. Choose another name." --form --center --borders=20 --separator="" \
+  --field="<b>Name for new style</b>":LBL " " \
+  --field=" " "$NEWNAME-new" )
+
+    GETOUT=$(echo "$?")
+
+    if [ "$GETOUT" != 0 ]; then
+
+    exit
+
+    fi
+
+done
+
+
+#check if new Look name exists, if yes ask if overwrite or different name
+
+cd $MXLKPATH/looks
+
+while [ -f $NEWNAME.look ]; do
+
+yad --title="$TITLE" --class="$CLASS" --window-icon="$ICONPATH" --width=400 --fixed --text="A Look with this name already exists. \n\nDo you want to overwrite <b>"$NEWNAME"</b>\nor save as a different name\n" --button="Overwrite $NEWNAME":2 --button="Save as different name":3 --text-align=center --center --borders=20\
+
+case $? in
+
+2) rm -r $MXLKPATH/looks/$NEWNAME.look ;;
+
+3) NEWNAME=$(yad --title="$TITLE" --class="$CLASS" --window-icon="$ICONPATH" --width=400 --height=200 --fixed --form --center --borders=20 --separator="" \
+--field="<b>Name for New Look</b>":LBL " " \
+--field=" " "$NEWNAME-new" )    ;;
+
+252) exit 0    ;;
+
+esac
+done
+
+##################################
+
+echo ""$LKTHEME"
 "$LKICON"
 "$LKTHEME2"
 "$LKICON2"
@@ -171,8 +216,6 @@ session.styleFile: "$LKFS"
 "$LKBACK"" > $MXLKPATH/looks/"$NEWNAME".look
 
   yad --title="$TITLE" --class="$CLASS" --window-icon="$ICONPATH" --width=400 --height=250 --fixed --center --borders=20 --text="All done!\n\nLook has been saved as <b>$NEWNAME</b>" --text-align=center --button="OK" \
-
-fi
 
 exit
 }
@@ -208,7 +251,7 @@ if [ "$GETOUT" != 0 ]; then
 
 fi
 
-#read Settings
+#read Settings for new look
 
 cd $MXLKPATH/looks
 
@@ -239,12 +282,16 @@ LKTHEMEOLD="$(grep "gtk-theme-name" $HOME/.config/gtk-3.0/settings.ini)"
 LKICONOLD="$(grep "gtk-icon-theme-name" $HOME/.config/gtk-3.0/settings.ini)"
 LKTHEMEOLD2="$(grep "gtk-theme-name" $HOME/.gtkrc-2.0)"
 LKICONOLD2="$(grep "gtk-icon-theme-name" $HOME/.gtkrc-2.0)"
+
 #fluxbox style
 LKFSOLD="$(grep "styles" $HOME/.fluxbox/init)"
+
 #tint2
 LKTINTOLD="$(grep "tint2" $HOME/.config/tint2/tint2-sessionfile)"
+
 #rofi
 LKROFIOLD="$(grep "themes" $HOME/.config/rofi/config.rasi)"
+
 #background
 LKBACKOLD="$(grep "file=" $HOME/.config/nitrogen/bg-saved.cfg)"
 
@@ -256,6 +303,27 @@ LKFSOLD=$(echo "${LKFSOLD}" | sed -e 's/[]$\/*[\^]/\\&/g' )
 #LKTINTOLD=$(echo "${LKTINTOLD}" | sed -e 's/[]$\/*[\^]/\\&/g' )
 LKROFIOLD=$(echo "${LKROFIOLD}" | sed -e 's/[]$\/*[\^]/\\&/g' )
 LKBACKOLD=$(echo "${LKBACKOLD}" | sed -e 's/[]$\/*[\^]/\\&/g' )
+
+#RESTOREMAIN
+
+yad --title="$TITLE" --class="$CLASS" --window-icon="$ICONPATH" --borders=20 --center --width=600 --height=400 --fixed --button="gtk-quit":1 --button="Restore Look":0 \
+--text="
+<b>These settings will be restored.\n</b>
+GTK Theme: <b>"$LKTHEMENEW"</b>\n
+Gtk Icons: <b>"$LKICONNEW"</b>\n
+Fluxbox Style: <b>"LKFSNEW"</b>\n
+Tint2: <b>"$LKTINTNEW"</b>\n
+Rofi: <b>"$LKROFINEW"</b>\n
+Wallpaper: <b>"$LKBACKNEW"</b>\n"\
+
+
+GETOUT=$(echo "$?")
+
+if [ "$GETOUT" != 0 ]; then
+
+  exit
+
+elif [ "$GETOUT" = 0 ]; then
 
 #Edit Config files
 
@@ -288,11 +356,11 @@ fluxbox-remote restart
 #tint
 cd ~/.config/tint2
 rm tint2-sessionfile
-#sed -i -e "s/${LKTINTOLD}/${LKTINTNEW}/g" ~/.config/tint2/tint2-sessionfile
-LKTINTNEW=$(echo "${LKTINTNEW}" | printf "$LKTINTNEW" ) 
-printf "$LKTINTNEW" > ~/.config/tint2/tint2-sessionfile
 killall tint2
-tint2 -c $LKTINTNEW >/dev/null 2>&1 & disown
+LKTINTNEW2=$(basename "$LKTINTNEW")
+echo "$HOME/.config/tint2/$LKTINTNEW2" >> ~/.config/tint2/tint2-sessionfile
+tint2 -c $HOME/.config/tint2/$LKTINTNEW2 >/dev/null 2>&1 &  disown
+
 
 #rofi
 cd $HOME/.config/rofi/
@@ -305,7 +373,9 @@ cd $MXLKPATH/tempdir
 echo "$LKBACKNEW" > nitrotemp.txt
 sed -i "s/file\=//g" nitrotemp.txt
 read LKNITRO < nitrotemp.txt
-nitrogen --restore "$LKNITRO"
+nitrogen --set-zoom-fill --save "$LKNITRO"
+
+fi
 
 }
 
