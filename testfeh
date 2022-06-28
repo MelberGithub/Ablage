@@ -1,0 +1,27 @@
+#!/bin/bash
+
+#CHECKFEH=$(grep '#~/.fehbg' $HOME/.fluxbox/startup)
+#feh --no-fehbg --bg-scale '/usr/share/backgrounds/Honesty.jpg' 
+
+CHECKFEH=$(grep '#nitrogen' $HOME/.fluxbox/startup)
+
+if [ -z "$CHECKFEH" ]; then
+
+echo "Nitrogen"
+
+else
+
+
+FEH1=$(grep 'feh' $HOME/.fehbg)
+echo "$FEH1" > fehtemp.txt
+
+read -r -a FEHBG < fehtemp.txt
+
+FEHBG1="${FEHBG[4]}"
+
+echo "feh "$FEHBG1""
+
+
+
+fi
+exit
